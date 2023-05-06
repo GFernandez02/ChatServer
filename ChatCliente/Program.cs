@@ -32,7 +32,7 @@ namespace ChatCliente
             //Se da a entender que mientras el cliente envie un mensaje este debe estar con un dato para ser enviado, de lo contrario se termina esta funcion
             while (!string.IsNullOrEmpty((mensaje = Console.ReadLine())))
             {
-                mensaje = string.Concat(alias," : " , mensaje);
+                mensaje = String.Format("[{0}] {1}", alias, mensaje); 
                 byte[] buffer = Encoding.ASCII.GetBytes(mensaje);
                 stream.Write(buffer, 0, buffer.Length);
 

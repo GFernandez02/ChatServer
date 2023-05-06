@@ -1,4 +1,7 @@
 ﻿//Se importan los paquetes de datos
+using System;
+using System.Collections.Specialized;
+using System.Data;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -61,9 +64,57 @@ namespace ChatServer
                 //Se abre un string que va a codificar los mensajes por UTF-8 y, el usuario podrá enviar mensajes
                 string data = Encoding.UTF8.GetString(buffer, 0, byteCount);
 
-                EnviarMensajes(data);
-                Console.WriteLine(data);
 
+                //whisper id mensaje
+                string[] mensaje = data.Split(' ');
+
+                
+
+
+                if (mensaje[1]== "/whisper")
+                {
+                    int idTmp= int.Parse(mensaje[2]);
+                    // TODO: Que el mensaje real no se junte.
+                    string mensajeReal = String.Concat(mensaje[3..]);
+                  
+                    EnviarMensajePrivado(idTmp, mensajeReal);
+                }
+                else if (mensaje[1]=="/listall")
+
+                {
+                    //TODO: que el mensaje real tambien implemente la id.
+                    string clientesTmp = "";
+                    foreach (KeyValuePair<int, TcpClient> c in clientes)
+                    {
+                        clientesTmp=clientesTmp+c.Key+".- "+c.Value.Client.RemoteEndPoint.ToString()+'\n';
+                    }
+                    EnviarMensajes(clientesTmp);
+                }
+                else
+
+                {
+                    EnviarMensajes(data);
+                    Console.WriteLine(data);
+                }
+
+
+            }
+            
+
+
+        }
+
+        private static void EnviarMensajePrivado(int id, string mensaje)
+
+        {
+            TcpClient tmp = null;
+            clientes.TryGetValue(id, out tmp);
+
+            if (tmp != null)
+            {
+                byte[] buffer = Encoding.UTF8.GetBytes(mensaje + Environment.NewLine);
+                NetworkStream stream = tmp.GetStream();
+                stream.Write(buffer, 0, buffer.Length);
             }
         }
 
